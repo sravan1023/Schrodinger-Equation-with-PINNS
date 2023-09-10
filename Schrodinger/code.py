@@ -1,54 +1,29 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[ ]:
-
-
 import sys
+import time
+import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
-import numpy as np
 import matplotlib.pyplot as plt
 import scipy.io
 from scipy.interpolate import griddata
 from pyDOE import lhs
 import tensorflow_probability as tfp
-import time
-
-
-# In[ ]:
+from plotting import newfig, savefig
+from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.gridspec as gridspec
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
 sys.path.insert(0, r'...\Utilities')
 
 
-# In[ ]:
-
-
-from plotting import newfig, savefig
-from mpl_toolkits.mplot3d import Axes3D
-import time
-import matplotlib.gridspec as gridspec
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-
-
-# In[ ]:
-
-
 np.random.seed(1234)
 tf.random.set_seed(1234)
-
-
-# In[ ]:
-
 
 def lhs(d, N):
     x = np.linspace(0, 1, N)
     return np.array([x**i for i in range(d)]).T
-
-
-# In[ ]:
 
 
 class PhyInfNN:
@@ -104,7 +79,7 @@ class PhyInfNN:
                     tf.reduce_mean(tf.square(self.f_u_pred)) + \
                     tf.reduce_mean(tf.square(self.f_v_pred))
 
-        self.optimizer_Adam = tf.optimizers.Adam(learning_rate=0.001)  # You may want to adjust the learning rate
+        self.optimizer_Adam = tf.optimizers.Adam(learning_rate=0.001) 
 
     def initialize_NN(self, layers):        
         weights = []
@@ -196,13 +171,6 @@ class PhyInfNN:
         return u_star, v_star, f_u_star, f_v_star
 
 
-
-
-
-
-# In[ ]:
-
-
 if __name__ == "__main__":
     
     lb = np.array([-5.0, 0.0])
@@ -256,10 +224,7 @@ if __name__ == "__main__":
     print('Error v: %e' % (error_v))
     print('Error h: %e' % (error_h))
     
-
-
-# In[ ]:
-
+######################## PLOTTING ######################
 
 X0 = np.concatenate((x0, 0*x0), 1) # (x0, 0)
 X_lb = np.concatenate((0*tb + lb[0], tb), 1) # (lb[0], tb)
@@ -269,7 +234,8 @@ X_u_train = np.vstack([X0, X_lb, X_ub])
 fig, ax = newfig(1.0, 0.9)
 ax.axis('off')
 
-####### Row 0: h(t,x) ##################    
+################ Row 0: h(t,x) ################## 
+
 gs0 = gridspec.GridSpec(2, 4)
 gs0.update(top=1-0.05, bottom=1-1.6/3, left=0.05, right=0.95, wspace=2)
 ax = plt.subplot(gs0[:, :])
@@ -295,7 +261,8 @@ leg = ax.legend(frameon=False, loc = 'best')
 ax.set_title('$|h(t,x)|$', fontsize = 2)
 
    
-   ####### Row 1: h(t,x) slices ##################    
+############### Row 1: h(t,x) slices ##################    
+
 gs1 = gridspec.GridSpec(1, 3)
 gs1.update(top=0, bottom=-1, left=0.1, right=0.9, wspace=0.2)
 
@@ -312,6 +279,8 @@ ax.axis('square')
 ax.set_xlim([-5.1, 5.1])
 ax.set_ylim([-0.1, 5.1])
 
+############### Row 2: h(t,x) slices ##################    
+
 ax = plt.subplot(gs1[0, 1])
 ax.plot(x,Exact_h[:,100], 'b-', linewidth = 2, label = 'Exact')       
 ax.plot(x,h_pred_reshaped[100,:], 'r--', linewidth = 2, label = 'Prediction')
@@ -322,6 +291,8 @@ ax.set_xlim([-5.1,5.1])
 ax.set_ylim([-0.1,5.1])
 ax.set_title('$t = %.2f$' % (t[100]), fontsize = 10)
 ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.8), ncol=5, frameon=False)
+
+############### Row 3: h(t,x) slices ##################    
 
 ax = plt.subplot(gs1[0, 2])
 ax.plot(x,Exact_h[:,125], 'b-', linewidth = 2, label = 'Exact')       
@@ -334,10 +305,3 @@ ax.set_ylim([-0.1,5.1])
 ax.set_title('$t = %.2f$' % (t[125]), fontsize = 10)
 
 #   savefig(r"...\figures")
-
-
-# In[ ]:
-
-
-
-
